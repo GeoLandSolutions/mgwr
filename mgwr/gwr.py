@@ -13,7 +13,7 @@ from scipy.special import factorial
 from itertools import combinations as combo
 from spglm.family import Gaussian, Binomial, Poisson
 from spglm.glm import GLM, GLMResults
-from spglm.iwls import iwls, _compute_betas_gwr
+from spglm.iwls import iwls
 from spglm.utils import cache_readonly
 from joblib import Parallel, delayed
 from .diagnostics import get_AIC, get_AICc, get_BIC, corr
@@ -257,6 +257,24 @@ class GWR(GLM):
 
         return wi
 
+    def _compute_betas(self, y, x, wi):
+            """
+            compute MLE coefficients using iwls routine
+
+            Methods: p189, Iteratively (Re)weighted Least Squares (IWLS),
+            Fotheringham, A. S., Brunsdon, C., & Charlton, M. (2002).
+            Geographically weighted regression: the analysis of spatially varying relationships.
+
+            Modified copy from pysal/spglm in order to use pseudo-inverse
+            """
+            xT = (x * wi).T
+            xtx = np.dot(xT, x)
+            # TODO: make sure we're being rigorous about what condition numbers we allow
+            xtx_inv = la.pinv(xtx)
+            xtx_inv_xt = xtx_inv @ xT
+            betas = np.dot(xtx_inv_xt, y)
+            return betas, xtx_inv_xt
+
     def _local_fit(self, i):
         """
         Local fitting at location i.
@@ -264,7 +282,7 @@ class GWR(GLM):
         wi = self._build_wi(i, self.bw).reshape(-1, 1)  #local spatial weights
 
         if isinstance(self.family, Gaussian):
-            betas, inv_xtx_xt = _compute_betas_gwr(self.y, self.X, wi)
+            betas, inv_xtx_xt = self._compute_betas(self.y, self.X, wi)
             predy = np.dot(self.X[i], betas)[0]
             resid = self.y[i] - predy
             influ = np.dot(self.X[i], inv_xtx_xt[:, i])
