@@ -30,10 +30,17 @@ jobs:
       - name: Build wheel
         run: python -m build --wheel
 
+      - name: Create stable-name copy for latest URL
+        run: |
+          WHEEL_FILE=$(ls dist/*.whl)
+          cp "$WHEEL_FILE" dist/mgwr-latest-py3-none-any.whl
+          echo "Created stable-name copy: mgwr-latest-py3-none-any.whl"
+          ls -lh dist/
+
       - name: Get wheel filename
         id: wheel
         run: |
-          WHEEL_FILE=$(ls dist/*.whl)
+          WHEEL_FILE=$(ls dist/*.whl | grep -v latest)
           echo "filename=$WHEEL_FILE" >> $GITHUB_OUTPUT
           echo "basename=$(basename $WHEEL_FILE)" >> $GITHUB_OUTPUT
 
