@@ -27,4 +27,40 @@ Features
 Citation
 --------
 Oshan, T. M., Li, Z., Kang, W., Wolf, L. J., & Fotheringham, A. S. (2019). mgwr: A Python implementation of multiscale geographically weighted regression for investigating process spatial heterogeneity and scale. ISPRS International Journal of Geo-Information, 8(6), 269.
+
+Creating a New Release (GeoLandSolutions Fork)
+-----------------------------------------------
+
+This fork is used by the model-pipeline project. To create a new release:
+
+1. **Make and commit your changes:**
+   ```bash
+   git add .
+   git commit -m "Description of changes"
+   git push origin master
+   ```
+
+2. **Create a release tag:**
+
+   Tags follow the format `v{version}-pinv.{increment}` where:
+   - `{version}` is the mgwr version (e.g., `2.2.1`)
+   - `{increment}` is the fork version (e.g., `0`, `1`, `2`, ...)
+
+   Example:
+   ```bash
+   git tag -a v2.2.1-pinv.2 -m "Add pseudo-inverse implementation"
+   git push origin v2.2.1-pinv.2
+   ```
+
+3. **Wait for GitHub Actions to complete:**
+
+   - The workflow automatically builds a wheel and creates a GitHub Release
+   - Check the [Actions tab](https://github.com/GeoLandSolutions/mgwr/actions) to monitor progress (~2-3 minutes)
+   - The wheel will be attached to the release at: https://github.com/GeoLandSolutions/mgwr/releases
+
+4. **Update model-pipeline:**
+
+   See instructions in the [model-pipeline README](https://github.com/GeoLandSolutions/model-pipeline#updating-the-mgwr-fork) for how to update the dependency.
+
+**Note:** The wheel filename will be `mgwr-2.2.1-py3-none-any.whl` (based on the version in `setup.py`), regardless of the tag increment number.
   
